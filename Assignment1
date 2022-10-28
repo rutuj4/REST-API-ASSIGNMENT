@@ -1,0 +1,196 @@
+package com.example.demo;
+  
+public class Transporter 
+{  
+    public Transporter() {}
+  
+    // Parameterized Constructor
+    // to assign the values
+    // to the properties of
+    // the entity
+     public Transporter(String loadingPoint, String unloadingPoint, String productType, String truckType, String noOfTrucks, String shipperId, String Date)
+    {
+  
+        super();
+  
+        this.loadingPoint = loadingPoint;
+        this.unloadingPoint = unloadingPoint;
+        this.productType = productType;
+	  this.truckType = truckType;
+        this.noOfTrucks = noOfTrucks;
+  	  this.shipperId = shipperId;
+	  this.Date = Date;
+    }    
+       private String loadingPoint;
+       private String unloadingPoint; 
+       private String productType; 
+       private String truckType; 
+       private String noOfTrucks; 
+       private String shipperId; 
+       private String Date;
+  
+    @Override
+   public String toString()
+    {  
+         return “Transporter [loadingPoint=” + loadingPoint + “,unloadingPoint =” + unloadingPoint + “,productType =” + productType + “,truckType =” + truckType “,noOfTrucks =” + noOfTrucks + “,shipperId =” + shipperId + Date =” + Date”]”;         
+    }  
+    public String getLoadingPoint()
+    {
+          return loadingPoint;
+    } 
+    public void setLoadingPoint(
+        String loadingPoint)
+    {
+           this.loadingPoint = loadingPoint;
+    }  
+    public String getUnloadingPoint()
+    {
+         return unloadingPoint;
+    }  
+    public void setUnloadingPoint(String unloadingPoint)
+    {
+           this.unloadingPoint = unloadingPoint;
+    }  
+    public String getProductType()
+    { 
+         return productType;
+    }
+    public void setProductType(String productType)
+    { 
+         this.productType = productType;
+    }
+    public String getTruckType()
+    {
+         return truckType;
+    }  
+    public void setTruckType(String truckType)
+    {
+           this.truckType = truckType;
+    }
+    public String getNoOfTrucks()
+    {
+         return noOfTrucks;
+    }  
+    public void setNoOfTrucks(String noOfTrucks)
+    {
+           this.noOfTrucks = noOfTrucks;
+    }
+    public String getShipperId()
+    {
+         return shipperId;
+    }  
+    public void setShipperId(String shipperId)
+    {
+           this.shipperId = shipperId;
+    }
+    public String getDate()
+    {
+         return Date;
+    }  
+    public void setDate(String Date)
+    {
+           this.Date = Date;
+    }
+}
+
+
+package com.example.demo;
+  
+import java.util.ArrayList;
+import java.util.List;
+  
+public class Transpoters 
+{
+  
+    private List<Transpoter> transpoterList; 
+    public List<Transpoter> getTranspoterList()
+    {
+  
+        if (transpoterList == null) 
+       {
+            transpoterList= new ArrayList<>();                  
+        } 
+        return transpoterList;
+     }
+    public void setTranspoterList(List<Transpoter> transpoterList)
+    {
+        this.transpoterList = transpoterList;
+    }
+}
+
+
+package com.example.demo;
+import org.springframework.stereotype.Repository;
+import com.example.demo.Transpoters;
+  
+@Repository
+public class TranspoterDAO {
+    private static Transpoters listn= new Transpoters();
+    static
+    {
+        list.getTranspoterList().add(new Transpoter(“delhi", "jaipur", "chemicals", "canter", "1", "100", “shipper:<UUID>”, “dd-mm-yyyy”));
+        list.getTranspoterList().add(new Transpoter(“alwar", "jaipur", "chemicals", "canter", "1", "100", “dd-mm-yyyy”));
+    }
+    // Method to return the list
+    public Transpoters getAllTranspoters()
+    {
+          return list;
+    }     
+        public void addTranspoter(Transpoter transpoter)
+    {
+        list.getTranspoterList().add(transpoter); 
+    }
+}
+
+
+package com.example.demo;
+  
+import java.net.URI;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+  
+// Import the above-defined classes
+// to use the properties of those
+// classes
+import com.example.demo.Transporters;
+import com.example.demo.TransporterDAO;
+import com.example.demo.Transporter;
+  
+// Creating the REST controller
+@RestController
+@RequestMapping(path = "/transporters")
+public class TransporterController {
+  
+    @Autowired
+   private TransporterDAO transporterDao;
+       
+        // Implementing a GET method
+        // to get the list of all
+        // the transporters
+   @GetMapping(path = "/", produces = "application/json")
+     public Transporters getTransporters()
+    {
+        return transporterDao.getAllTransporters();
+    }
+        // Create a POST method
+        // to add an transporter
+        // to the list
+   @PostMapping(path = "/",consumes = "application/json",produces = "application/json")
+    public ResponseEntity<Object> addTransporter(@RequestBody Transporter transporter)
+    {
+        // Creating an LOADINGPOINT of an transporter
+        // from the number of transporters
+        String loadingPoint= transporterDao.getAllTransporters().getTransporterList().size() + 1;
+         transporter.setLoadingPoint(loadingPoint);
+          transporterDao.addTransporter(transporter);
+        URI location= ServletUriComponentsBuilder.fromCurrentRequest().path("/{loadingPoint}").buildAndExpand(
+                      transporter.getLoadingPoint()).toUri();
+     return ResponseEntity.created(location).build();
+    }
+}
